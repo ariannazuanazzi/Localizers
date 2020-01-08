@@ -3,11 +3,14 @@ function singletone_Poeppel(varargin)
 %% November 2019: added eyetracking by Arianna Zuanazzi
 record_eye = str2num(cell2mat(inputdlg('Eye recording? 1/0'))); %want to record eyemovements?
 
-%% ---- general parameters ----
+%% ---- generalcparameters ----
+SaveFolder = '/Users/megadmin/Desktop/Experiments/Arianna/singletone/data';
+
 screennumber = max(Screen('Screens')); %selects the screen number  
 white = [255 255 255]; %defines colour of background
 gray = [128 128 128]; %defines colour of instructions
 SubjectNumber = cell2mat(inputdlg('Participant ID')); %number of subject for data saving
+cd(SaveFolder);mkdir(SubjectNumber);cd(SubjectNumber);
 
 % number of tones
 if nargin==0
@@ -146,13 +149,16 @@ PTBDisplayBlank({1},'');
 
 for n=1:floor(length(index)/2) 
     if index(n) == 1
-    if record_eye == 1
-        Eyelink('Command', 'record_status_message "Tone n.%d"', n); %message to experimenter
-        Eyelink('Message', 'TONE %d', n); %codes for tone
-    end
-       PTBPlaySoundFile('1000Hz.wav',{'end','any'},1, 0) % 1, 0 trigger for high tone (line 2)
-    %elseif index(n) == 2
-       %PTBPlaySoundFile('250Hz.wav',{'end','any'},32,0) % trigger for low tone (line 1)
+
+       if record_eye == 1
+       Eyelink('Command', 'record_status_message "Tone n.%d"', n); %message to experimenter
+       Eyelink('Message', 'TONE %d', n); %codes for tone
+       end
+                     
+       PTBPlaySoundFile('1000Hz.wav',{'end','any'}, 1, 0) % 1, 0 trigger for high tone (line 2)
+        %elseif index(n) == 2
+        %PTBPlaySoundFile('250Hz.wav',{'end','any'},32,0) % trigger for low tone (line 1)
+ 
     end
     curr_ITI = ITI(ITImtx(n));
     PTBDisplayBlank({curr_ITI},'');    
@@ -166,6 +172,7 @@ end
 
 %Endexp
 PTBDisplayParagraph({'Done!'}, {'center', 15}, {3}, 2);%display done and wait for 5 secs
+save(sprintf('%s_ITImtx.mat', SubjectNumber), 'ITImtx');
 
 %% Cleanup
 PTBDisplayBlank({.1},'');
